@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>es.umh-atsd</groupId>
-    <artifactId>todolist-nikola-jamic</artifactId>
+    <artifactId>todolist-ferovci</artifactId>
     <version>1.2.0</version>
 
     <parent>
