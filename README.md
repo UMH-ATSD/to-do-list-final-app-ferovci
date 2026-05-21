@@ -117,3 +117,5 @@ public UsuarioData registrar(UsuarioData usuario, boolean isAdmin) {
 ```
 
 Why this is relevant: the check is executed at service level (not only in the view), so the invariant is protected even if future clients bypass the registration form. This design keeps the rule close to domain logic and makes it testable via unit/service tests.
+
+[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/rOF8_HM_)
