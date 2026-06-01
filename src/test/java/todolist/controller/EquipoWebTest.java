@@ -388,6 +388,35 @@ public class EquipoWebTest {
                 .andExpect(redirectedUrl("/equipos"));
     }
 
+    @Test
+    public void listadoEquiposMuestraNumeroDeMiembros() throws Exception {
+        whenLoggedUserIsPresent();
+
+        UsuarioData usuario = new UsuarioData();
+        usuario.setId(10L);
+        usuario.setNombre("Ana García");
+        when(usuarioService.findById(10L)).thenReturn(usuario);
+
+        EquipoData equipo1 = new EquipoData();
+        equipo1.setId(1L);
+        equipo1.setNombre("Backend");
+        equipo1.setMemberCount(2L);
+
+        EquipoData equipo2 = new EquipoData();
+        equipo2.setId(2L);
+        equipo2.setNombre("Frontend");
+        equipo2.setMemberCount(0L);
+
+        when(equipoService.findAllOrdenadoPorNombre()).thenReturn(java.util.Arrays.asList(equipo1, equipo2));
+        when(equipoService.equiposUsuario(10L)).thenReturn(Collections.emptyList());
+
+        this.mockMvc.perform(get("/equipos"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Members")))
+                .andExpect(content().string(containsString("<td>2</td>")))
+                .andExpect(content().string(containsString("<td>0</td>")));
+    }
+
     private void whenLoggedUserIsPresent() {
         org.mockito.Mockito.when(managerUserSession.usuarioLogeado()).thenReturn(10L);
     }
