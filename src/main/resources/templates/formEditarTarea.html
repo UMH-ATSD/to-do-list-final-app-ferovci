@@ -14,7 +14,8 @@
         <div class="col-6">
             <div class="form-group">
                 <label for="titulo">Título de la tarea:</label>
-                <input class="form-control" id="titulo" name="titulo" required th:field="*{titulo}" type="text"/>
+                <input class="form-control" id="titulo" maxlength="200" name="titulo" required th:field="*{titulo}" type="text"/>
+                <small class="text-danger" th:if="${#fields.hasErrors('titulo')}" th:errors="*{titulo}"></small>
             </div>
             <button class="btn btn-primary" type="submit">Modificar tarea</button>
             <a class="btn btn-link" th:href="@{/usuarios/{id}/tareas(id=${tarea.usuarioId})}">Cancelar</a>

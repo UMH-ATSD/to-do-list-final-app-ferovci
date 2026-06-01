@@ -100,7 +100,9 @@ public class TareaController {
     }
 
     @PostMapping("/tareas/{id}/editar")
-    public String grabaTareaModificada(@PathVariable(value="id") Long idTarea, @ModelAttribute TareaData tareaData,
+    public String grabaTareaModificada(@PathVariable(value="id") Long idTarea,
+                                       @Valid @ModelAttribute TareaData tareaData,
+                                       BindingResult bindingResult,
                                        Model model, RedirectAttributes flash, HttpSession session) {
         TareaData tarea = tareaService.findById(idTarea);
         if (tarea == null) {
@@ -110,6 +112,13 @@ public class TareaController {
         Long idUsuario = tarea.getUsuarioId();
 
         comprobarUsuarioLogeado(idUsuario);
+
+        if (bindingResult.hasErrors()) {
+            UsuarioData usuario = usuarioService.findById(idUsuario);
+            model.addAttribute("tarea", tarea);
+            model.addAttribute("usuarioNombre", usuario.getNombre());
+            return "formEditarTarea";
+        }
 
         tareaService.modificaTarea(idTarea, tareaData.getTitulo());
         flash.addFlashAttribute("mensaje", "Tarea modificada correctamente");

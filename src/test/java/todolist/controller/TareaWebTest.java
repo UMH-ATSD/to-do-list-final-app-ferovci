@@ -217,4 +217,23 @@ public class TareaWebTest {
         this.mockMvc.perform(get(urlListado))
                 .andExpect(content().string(containsString("Buy coffee")));
     }
+
+    @Test
+    public void editarTareaConTituloLargoMuestraErrorDeValidacion() throws Exception {
+        // GIVEN
+        Map<String, Long> ids = addUsuarioTareasBD();
+        Long usuarioId = ids.get("usuarioId");
+        Long tareaId = ids.get("tareaId");
+        when(managerUserSession.usuarioLogeado()).thenReturn(usuarioId);
+
+        String urlEditar = "/tareas/" + tareaId + "/editar";
+        String tituloLargo = "a".repeat(201);
+
+        // WHEN, THEN
+        this.mockMvc.perform(post(urlEditar)
+                        .param("titulo", tituloLargo))
+                .andExpect(status().isOk())
+                .andExpect(view().name("formEditarTarea"))
+                .andExpect(content().string(containsString("El titulo no puede superar 200 caracteres")));
+    }
 }
