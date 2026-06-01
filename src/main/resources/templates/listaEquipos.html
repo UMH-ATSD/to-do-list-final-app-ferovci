@@ -23,6 +23,7 @@
         <tr>
           <th>Id</th>
           <th>Name</th>
+          <th>Members</th>
           <th>Action</th>
         </tr>
         </thead>
@@ -32,6 +33,7 @@
           <td>
             <a th:href="@{/equipos/{id}(id=${equipo.id})}" th:text="${equipo.nombre}"></a>
           </td>
+          <td th:text="${equipo.memberCount != null ? equipo.memberCount : 0}"></td>
           <td>
             <form method="post"
                   th:if="${!usuarioPerteneceAlEquipoIds.contains(equipo.id)}"
