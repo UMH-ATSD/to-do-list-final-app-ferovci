@@ -2,6 +2,8 @@ package todolist.dto;
 
 import java.io.Serializable;
 import java.util.Objects;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 // Data Transfer Object para la clase Tarea
 public class TareaData implements Serializable {
@@ -9,6 +11,8 @@ public class TareaData implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
+    @NotBlank(message = "El titulo es obligatorio")
+    @Size(max = 200, message = "El titulo no puede superar 200 caracteres")
     private String titulo;
     private Long usuarioId;  // Esta es la ID del usuario asociado
 

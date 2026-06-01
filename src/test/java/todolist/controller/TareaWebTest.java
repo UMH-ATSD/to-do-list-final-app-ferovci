@@ -141,6 +141,23 @@ public class TareaWebTest {
     }
 
     @Test
+    public void postNuevaTareaConTituloLargoMuestraErrorDeValidacion() throws Exception {
+        // GIVEN
+        Long usuarioId = addUsuarioTareasBD().get("usuarioId");
+        when(managerUserSession.usuarioLogeado()).thenReturn(usuarioId);
+
+        String urlPost = "/usuarios/" + usuarioId + "/tareas/nueva";
+        String tituloLargo = "a".repeat(201);
+
+        // WHEN, THEN
+        this.mockMvc.perform(post(urlPost)
+                        .param("titulo", tituloLargo))
+                .andExpect(status().isOk())
+                .andExpect(view().name("formNuevaTarea"))
+                .andExpect(content().string(containsString("El titulo no puede superar 200 caracteres")));
+    }
+
+    @Test
     public void deleteTareaDevuelveOKyBorraTarea() throws Exception {
         // GIVEN
         // Un usuario con dos tareas en la BD
