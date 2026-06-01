@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class EquipoService {
@@ -130,6 +132,22 @@ public class EquipoService {
         List<EquipoData> equiposData = equipos.stream()
                 .map(equipo -> modelMapper.map(equipo, EquipoData.class))
                 .collect(Collectors.toList());
+
+        // Fetch member counts in a single query and map by team id
+        List<EquipoRepository.TeamMemberCount> counts = equipoRepository.countMembersByTeam();
+        Map<Long, Long> countByTeam = new HashMap<>();
+        if (counts != null) {
+            for (EquipoRepository.TeamMemberCount tmc : counts) {
+                if (tmc != null && tmc.getTeamId() != null) {
+                    countByTeam.put(tmc.getTeamId(), tmc.getMemberCount() == null ? 0L : tmc.getMemberCount());
+                }
+            }
+        }
+
+        // set memberCount on DTOs (default to 0 if no entry)
+        for (EquipoData ed : equiposData) {
+            ed.setMemberCount(countByTeam.getOrDefault(ed.getId(), 0L));
+        }
 
         // ordenamos la lista por nombre del equipo
         Collections.sort(equiposData, (a, b) -> a.getNombre().compareTo(b.getNombre()));
