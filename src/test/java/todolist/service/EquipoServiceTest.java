@@ -289,4 +289,101 @@ public class EquipoServiceTest {
                 .hasMessage("El usuario ya pertenece al equipo");
     }
 
+    @Test
+    public void descriptionPreviewGeneratedWithCorrectFormat() {
+        // GIVEN
+        // A team with members
+        UsuarioData usuario1 = new UsuarioData();
+        usuario1.setEmail("user1@umh");
+        usuario1.setPassword("1234");
+        usuario1 = usuarioService.registrar(usuario1);
+
+        EquipoData equipoCreado = equipoService.crearEquipo("Backend Team");
+        equipoService.añadirUsuarioAEquipo(equipoCreado.getId(), usuario1.getId());
+
+        // WHEN
+        // We retrieve the team
+        EquipoData equipoRetrieved = equipoService.recuperarEquipo(equipoCreado.getId());
+
+        // THEN
+        // The preview should be generated with correct format
+        assertThat(equipoRetrieved.getDescriptionPreview()).isNotNull();
+        assertThat(equipoRetrieved.getDescriptionPreview()).contains("Backend Team");
+        assertThat(equipoRetrieved.getDescriptionPreview()).contains("1 member");
+    }
+
+    @Test
+    public void descriptionPreviewShowsMultipleMembersCorrectly() {
+        // GIVEN
+        // A team with multiple members
+        UsuarioData usuario1 = new UsuarioData();
+        usuario1.setEmail("user1@umh");
+        usuario1.setPassword("1234");
+        usuario1 = usuarioService.registrar(usuario1);
+
+        UsuarioData usuario2 = new UsuarioData();
+        usuario2.setEmail("user2@umh");
+        usuario2.setPassword("1234");
+        usuario2 = usuarioService.registrar(usuario2);
+
+        EquipoData equipoCreado = equipoService.crearEquipo("Frontend Team");
+        equipoService.añadirUsuarioAEquipo(equipoCreado.getId(), usuario1.getId());
+        equipoService.añadirUsuarioAEquipo(equipoCreado.getId(), usuario2.getId());
+
+        // WHEN
+        // We retrieve the team
+        EquipoData equipoRetrieved = equipoService.recuperarEquipo(equipoCreado.getId());
+
+        // THEN
+        // The preview should show 2 members
+        assertThat(equipoRetrieved.getDescriptionPreview()).isNotNull();
+        assertThat(equipoRetrieved.getDescriptionPreview()).contains("Frontend Team");
+        assertThat(equipoRetrieved.getDescriptionPreview()).contains("2 members");
+    }
+
+    @Test
+    public void descriptionPreviewShowsZeroMembersWhenNoMembers() {
+        // GIVEN
+        // A team without members
+        EquipoData equipoCreado = equipoService.crearEquipo("Empty Team");
+
+        // WHEN
+        // We retrieve the team
+        EquipoData equipoRetrieved = equipoService.recuperarEquipo(equipoCreado.getId());
+
+        // THEN
+        // The preview should show 0 members
+        assertThat(equipoRetrieved.getDescriptionPreview()).isNotNull();
+        assertThat(equipoRetrieved.getDescriptionPreview()).contains("Empty Team");
+        assertThat(equipoRetrieved.getDescriptionPreview()).contains("0 members");
+    }
+
+    @Test
+    public void descriptionPreviewIncludedInFindAllOrdenadoPorNombre() {
+        // GIVEN
+        // Multiple teams with different member counts
+        UsuarioData usuario = new UsuarioData();
+        usuario.setEmail("user@umh");
+        usuario.setPassword("1234");
+        usuario = usuarioService.registrar(usuario);
+
+        EquipoData equipo1 = equipoService.crearEquipo("Project A");
+        EquipoData equipo2 = equipoService.crearEquipo("Project B");
+        equipoService.añadirUsuarioAEquipo(equipo1.getId(), usuario.getId());
+
+        // WHEN
+        // We retrieve all teams
+        List<EquipoData> equipos = equipoService.findAllOrdenadoPorNombre();
+
+        // THEN
+        // All teams should have preview populated
+        assertThat(equipos).hasSize(2);
+        assertThat(equipos.stream().filter(e -> e.getId().equals(equipo1.getId())).findFirst().get().getDescriptionPreview())
+                .contains("Project A")
+                .contains("1 member");
+        assertThat(equipos.stream().filter(e -> e.getId().equals(equipo2.getId())).findFirst().get().getDescriptionPreview())
+                .contains("Project B")
+                .contains("0 members");
+    }
+
 }
