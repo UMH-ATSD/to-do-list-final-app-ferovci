@@ -1,0 +1,2 @@
+-- Migration script from version 1.2.0 to 1.3.0.
+-- No database schema changes are required for this release.

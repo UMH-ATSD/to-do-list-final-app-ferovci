@@ -388,6 +388,84 @@ public class EquipoWebTest {
                 .andExpect(redirectedUrl("/equipos"));
     }
 
+    @Test
+    public void listadoEquiposMuestraNumeroDeMiembros() throws Exception {
+        whenLoggedUserIsPresent();
+
+        UsuarioData usuario = new UsuarioData();
+        usuario.setId(10L);
+        usuario.setNombre("Ana García");
+        when(usuarioService.findById(10L)).thenReturn(usuario);
+
+        EquipoData equipo1 = new EquipoData();
+        equipo1.setId(1L);
+        equipo1.setNombre("Backend");
+        equipo1.setMemberCount(2L);
+
+        EquipoData equipo2 = new EquipoData();
+        equipo2.setId(2L);
+        equipo2.setNombre("Frontend");
+        equipo2.setMemberCount(0L);
+
+        when(equipoService.findAllOrdenadoPorNombre()).thenReturn(java.util.Arrays.asList(equipo1, equipo2));
+        when(equipoService.equiposUsuario(10L)).thenReturn(Collections.emptyList());
+
+        this.mockMvc.perform(get("/equipos"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Members")))
+                .andExpect(content().string(containsString("<td>2</td>")))
+                .andExpect(content().string(containsString("<td>0</td>")));
+    }
+
+    @Test
+    public void descripcionEquipoMuestraDescriptionPreviewCuandoEstaDisponible() throws Exception {
+        whenLoggedUserIsPresent();
+
+        UsuarioData usuario = new UsuarioData();
+        usuario.setId(10L);
+        usuario.setNombre("Ana García");
+        when(usuarioService.findById(10L)).thenReturn(usuario);
+
+        EquipoData equipo = new EquipoData();
+        equipo.setId(1L);
+        equipo.setNombre("Backend");
+        equipo.setMemberCount(3L);
+        equipo.setDescriptionPreview("Backend - 3 members");
+
+        when(equipoService.recuperarEquipo(1L)).thenReturn(equipo);
+        when(equipoService.usuariosEquipo(1L)).thenReturn(Collections.emptyList());
+        when(equipoService.equiposUsuario(10L)).thenReturn(Collections.emptyList());
+
+        this.mockMvc.perform(get("/equipos/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Backend - 3 members")))
+                .andExpect(content().string(containsString("<small>Backend - 3 members</small>")));
+    }
+
+    @Test
+    public void descripcionEquipoNoMuestraPreviewCuandoEsNula() throws Exception {
+        whenLoggedUserIsPresent();
+
+        UsuarioData usuario = new UsuarioData();
+        usuario.setId(10L);
+        usuario.setNombre("Ana García");
+        when(usuarioService.findById(10L)).thenReturn(usuario);
+
+        EquipoData equipo = new EquipoData();
+        equipo.setId(1L);
+        equipo.setNombre("Backend");
+        equipo.setMemberCount(0L);
+        equipo.setDescriptionPreview(null);
+
+        when(equipoService.recuperarEquipo(1L)).thenReturn(equipo);
+        when(equipoService.usuariosEquipo(1L)).thenReturn(Collections.emptyList());
+        when(equipoService.equiposUsuario(10L)).thenReturn(Collections.emptyList());
+
+        this.mockMvc.perform(get("/equipos/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(containsString("text-muted mb-2"))));
+    }
+
     private void whenLoggedUserIsPresent() {
         org.mockito.Mockito.when(managerUserSession.usuarioLogeado()).thenReturn(10L);
     }

@@ -14,13 +14,30 @@
         <div class="col-6">
             <div class="form-group">
                 <label for="titulo">Título de la tarea:</label>
-                <input class="form-control" id="titulo" name="titulo" required th:field="*{titulo}" type="text"/>
+                <input class="form-control" id="titulo" maxlength="200" name="titulo" required th:field="*{titulo}" type="text"/>
+                <small class="form-text text-muted"><span id="tituloCounter">0</span>/200</small>
+                <small class="text-danger" th:if="${#fields.hasErrors('titulo')}" th:errors="*{titulo}"></small>
             </div>
             <button class="btn btn-primary" type="submit">Modificar tarea</button>
             <a class="btn btn-link" th:href="@{/usuarios/{id}/tareas(id=${tarea.usuarioId})}">Cancelar</a>
         </div>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tituloInput = document.getElementById('titulo');
+        const tituloCounter = document.getElementById('tituloCounter');
+        const maxTituloLength = 200;
+
+        function updateTituloCounter() {
+            tituloCounter.textContent = tituloInput.value.length;
+        }
+
+        tituloInput.addEventListener('input', updateTituloCounter);
+        updateTituloCounter();
+    });
+</script>
 
 <div th:replace="fragments::javascript"></div>
 

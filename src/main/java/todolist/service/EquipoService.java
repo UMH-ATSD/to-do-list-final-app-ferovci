@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class EquipoService {
@@ -26,6 +28,17 @@ public class EquipoService {
     private ModelMapper modelMapper;
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    private String generateDescriptionPreview(String nombre, Long memberCount) {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            return null;
+        }
+        if (memberCount == null) {
+            memberCount = 0L;
+        }
+        String memberText = memberCount == 1 ? "member" : "members";
+        return nombre + " - " + memberCount + " " + memberText;
+    }
 
     // Se añade un equipo en la aplicación.
     // El nombre debe ser distinto de null
@@ -50,7 +63,24 @@ public class EquipoService {
         Equipo equipo = equipoRepository.findByNombre(nombre).orElse(null);
         if (equipo == null) return null;
         else {
-            return modelMapper.map(equipo, EquipoData.class);
+            EquipoData equipoData = modelMapper.map(equipo, EquipoData.class);
+            // Populate member count
+            List<EquipoRepository.TeamMemberCount> counts = equipoRepository.countMembersByTeam();
+            if (counts != null) {
+                for (EquipoRepository.TeamMemberCount tmc : counts) {
+                    if (tmc != null && tmc.getTeamId() != null && tmc.getTeamId().equals(equipo.getId())) {
+                        Long memberCount = tmc.getMemberCount() == null ? 0L : tmc.getMemberCount();
+                        equipoData.setMemberCount(memberCount);
+                        equipoData.setDescriptionPreview(generateDescriptionPreview(equipoData.getNombre(), memberCount));
+                        break;
+                    }
+                }
+            }
+            if (equipoData.getMemberCount() == null) {
+                equipoData.setMemberCount(0L);
+                equipoData.setDescriptionPreview(generateDescriptionPreview(equipoData.getNombre(), 0L));
+            }
+            return equipoData;
         }
     }
 
@@ -59,7 +89,24 @@ public class EquipoService {
         Equipo equipo = equipoRepository.findById(equipoId).orElse(null);
         if (equipo == null) return null;
         else {
-            return modelMapper.map(equipo, EquipoData.class);
+            EquipoData equipoData = modelMapper.map(equipo, EquipoData.class);
+            // Populate member count
+            List<EquipoRepository.TeamMemberCount> counts = equipoRepository.countMembersByTeam();
+            if (counts != null) {
+                for (EquipoRepository.TeamMemberCount tmc : counts) {
+                    if (tmc != null && tmc.getTeamId() != null && tmc.getTeamId().equals(equipoId)) {
+                        Long memberCount = tmc.getMemberCount() == null ? 0L : tmc.getMemberCount();
+                        equipoData.setMemberCount(memberCount);
+                        equipoData.setDescriptionPreview(generateDescriptionPreview(equipoData.getNombre(), memberCount));
+                        break;
+                    }
+                }
+            }
+            if (equipoData.getMemberCount() == null) {
+                equipoData.setMemberCount(0L);
+                equipoData.setDescriptionPreview(generateDescriptionPreview(equipoData.getNombre(), 0L));
+            }
+            return equipoData;
         }
     }
 
@@ -117,7 +164,24 @@ public class EquipoService {
         Equipo equipo = equipoRepository.findById(id).orElse(null);
         if (equipo == null)
             throw new EquipoServiceException("El equipo no existe");
-        return modelMapper.map(equipo, EquipoData.class);
+        EquipoData equipoData = modelMapper.map(equipo, EquipoData.class);
+        // Populate member count
+        List<EquipoRepository.TeamMemberCount> counts = equipoRepository.countMembersByTeam();
+        if (counts != null) {
+            for (EquipoRepository.TeamMemberCount tmc : counts) {
+                if (tmc != null && tmc.getTeamId() != null && tmc.getTeamId().equals(id)) {
+                    Long memberCount = tmc.getMemberCount() == null ? 0L : tmc.getMemberCount();
+                    equipoData.setMemberCount(memberCount);
+                    equipoData.setDescriptionPreview(generateDescriptionPreview(equipoData.getNombre(), memberCount));
+                    break;
+                }
+            }
+        }
+        if (equipoData.getMemberCount() == null) {
+            equipoData.setMemberCount(0L);
+            equipoData.setDescriptionPreview(generateDescriptionPreview(equipoData.getNombre(), 0L));
+        }
+        return equipoData;
     }
 
     @Transactional
@@ -130,6 +194,24 @@ public class EquipoService {
         List<EquipoData> equiposData = equipos.stream()
                 .map(equipo -> modelMapper.map(equipo, EquipoData.class))
                 .collect(Collectors.toList());
+
+        // Fetch member counts in a single query and map by team id
+        List<EquipoRepository.TeamMemberCount> counts = equipoRepository.countMembersByTeam();
+        Map<Long, Long> countByTeam = new HashMap<>();
+        if (counts != null) {
+            for (EquipoRepository.TeamMemberCount tmc : counts) {
+                if (tmc != null && tmc.getTeamId() != null) {
+                    countByTeam.put(tmc.getTeamId(), tmc.getMemberCount() == null ? 0L : tmc.getMemberCount());
+                }
+            }
+        }
+
+        // set memberCount and descriptionPreview on DTOs (default to 0 if no entry)
+        for (EquipoData ed : equiposData) {
+            Long memberCount = countByTeam.getOrDefault(ed.getId(), 0L);
+            ed.setMemberCount(memberCount);
+            ed.setDescriptionPreview(generateDescriptionPreview(ed.getNombre(), memberCount));
+        }
 
         // ordenamos la lista por nombre del equipo
         Collections.sort(equiposData, (a, b) -> a.getNombre().compareTo(b.getNombre()));

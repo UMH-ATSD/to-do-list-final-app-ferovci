@@ -10,9 +10,11 @@ import todolist.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
@@ -47,11 +49,19 @@ public class TareaController {
     }
 
     @PostMapping("/usuarios/{id}/tareas/nueva")
-    public String nuevaTarea(@PathVariable(value="id") Long idUsuario, @ModelAttribute TareaData tareaData,
+    public String nuevaTarea(@PathVariable(value="id") Long idUsuario,
+                             @Valid @ModelAttribute TareaData tareaData,
+                             BindingResult bindingResult,
                              Model model, RedirectAttributes flash,
                              HttpSession session) {
 
         comprobarUsuarioLogeado(idUsuario);
+
+        if (bindingResult.hasErrors()) {
+            UsuarioData usuario = usuarioService.findById(idUsuario);
+            model.addAttribute("usuario", usuario);
+            return "formNuevaTarea";
+        }
 
         tareaService.nuevaTareaUsuario(idUsuario, tareaData.getTitulo());
         flash.addFlashAttribute("mensaje", "Tarea creada correctamente");
@@ -90,7 +100,9 @@ public class TareaController {
     }
 
     @PostMapping("/tareas/{id}/editar")
-    public String grabaTareaModificada(@PathVariable(value="id") Long idTarea, @ModelAttribute TareaData tareaData,
+    public String grabaTareaModificada(@PathVariable(value="id") Long idTarea,
+                                       @Valid @ModelAttribute TareaData tareaData,
+                                       BindingResult bindingResult,
                                        Model model, RedirectAttributes flash, HttpSession session) {
         TareaData tarea = tareaService.findById(idTarea);
         if (tarea == null) {
@@ -100,6 +112,13 @@ public class TareaController {
         Long idUsuario = tarea.getUsuarioId();
 
         comprobarUsuarioLogeado(idUsuario);
+
+        if (bindingResult.hasErrors()) {
+            UsuarioData usuario = usuarioService.findById(idUsuario);
+            model.addAttribute("tarea", tarea);
+            model.addAttribute("usuarioNombre", usuario.getNombre());
+            return "formEditarTarea";
+        }
 
         tareaService.modificaTarea(idTarea, tareaData.getTitulo());
         flash.addFlashAttribute("mensaje", "Tarea modificada correctamente");

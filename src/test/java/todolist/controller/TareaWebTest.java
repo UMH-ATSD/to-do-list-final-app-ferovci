@@ -107,8 +107,29 @@ public class TareaWebTest {
         this.mockMvc.perform(get(urlPeticion))
                 .andExpect((content().string(allOf(
                         containsString("form method=\"post\""),
-                        containsString(urlAction)
+                        containsString(urlAction),
+                        containsString("id=\"tituloCounter\""),
+                        containsString("updateTituloCounter")
                 ))));
+    }
+
+    @Test
+    public void getEditarTareaDevuelveFormConContador() throws Exception {
+        // GIVEN
+        Map<String, Long> ids = addUsuarioTareasBD();
+        Long usuarioId = ids.get("usuarioId");
+        Long tareaId = ids.get("tareaId");
+        when(managerUserSession.usuarioLogeado()).thenReturn(usuarioId);
+
+        String urlPeticion = "/tareas/" + tareaId + "/editar";
+
+        // WHEN, THEN
+        this.mockMvc.perform(get(urlPeticion))
+                .andExpect(content().string(allOf(
+                        containsString("id=\"tituloCounter\""),
+                        containsString("updateTituloCounter"),
+                        containsString("/200")
+                )));
     }
 
     @Test
@@ -138,6 +159,23 @@ public class TareaWebTest {
 
         this.mockMvc.perform(get(urlRedirect))
                 .andExpect((content().string(containsString("Study"))));
+    }
+
+    @Test
+    public void postNuevaTareaConTituloLargoMuestraErrorDeValidacion() throws Exception {
+        // GIVEN
+        Long usuarioId = addUsuarioTareasBD().get("usuarioId");
+        when(managerUserSession.usuarioLogeado()).thenReturn(usuarioId);
+
+        String urlPost = "/usuarios/" + usuarioId + "/tareas/nueva";
+        String tituloLargo = "a".repeat(201);
+
+        // WHEN, THEN
+        this.mockMvc.perform(post(urlPost)
+                        .param("titulo", tituloLargo))
+                .andExpect(status().isOk())
+                .andExpect(view().name("formNuevaTarea"))
+                .andExpect(content().string(containsString("El titulo no puede superar 200 caracteres")));
     }
 
     @Test
@@ -199,5 +237,24 @@ public class TareaWebTest {
 
         this.mockMvc.perform(get(urlListado))
                 .andExpect(content().string(containsString("Buy coffee")));
+    }
+
+    @Test
+    public void editarTareaConTituloLargoMuestraErrorDeValidacion() throws Exception {
+        // GIVEN
+        Map<String, Long> ids = addUsuarioTareasBD();
+        Long usuarioId = ids.get("usuarioId");
+        Long tareaId = ids.get("tareaId");
+        when(managerUserSession.usuarioLogeado()).thenReturn(usuarioId);
+
+        String urlEditar = "/tareas/" + tareaId + "/editar";
+        String tituloLargo = "a".repeat(201);
+
+        // WHEN, THEN
+        this.mockMvc.perform(post(urlEditar)
+                        .param("titulo", tituloLargo))
+                .andExpect(status().isOk())
+                .andExpect(view().name("formEditarTarea"))
+                .andExpect(content().string(containsString("El titulo no puede superar 200 caracteres")));
     }
 }
