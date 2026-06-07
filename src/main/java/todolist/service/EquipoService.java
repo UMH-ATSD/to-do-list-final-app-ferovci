@@ -29,17 +29,6 @@ public class EquipoService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    private String generateDescriptionPreview(String nombre, Long memberCount) {
-        if (nombre == null || nombre.trim().isEmpty()) {
-            return null;
-        }
-        if (memberCount == null) {
-            memberCount = 0L;
-        }
-        String memberText = memberCount == 1 ? "member" : "members";
-        return nombre + " - " + memberCount + " " + memberText;
-    }
-
     // Se añade un equipo en la aplicación.
     // El nombre debe ser distinto de null
     // El nombre no debe estar registrado en la base de datos
@@ -71,14 +60,12 @@ public class EquipoService {
                     if (tmc != null && tmc.getTeamId() != null && tmc.getTeamId().equals(equipo.getId())) {
                         Long memberCount = tmc.getMemberCount() == null ? 0L : tmc.getMemberCount();
                         equipoData.setMemberCount(memberCount);
-                        equipoData.setDescriptionPreview(generateDescriptionPreview(equipoData.getNombre(), memberCount));
                         break;
                     }
                 }
             }
             if (equipoData.getMemberCount() == null) {
                 equipoData.setMemberCount(0L);
-                equipoData.setDescriptionPreview(generateDescriptionPreview(equipoData.getNombre(), 0L));
             }
             return equipoData;
         }
@@ -97,21 +84,19 @@ public class EquipoService {
                     if (tmc != null && tmc.getTeamId() != null && tmc.getTeamId().equals(equipoId)) {
                         Long memberCount = tmc.getMemberCount() == null ? 0L : tmc.getMemberCount();
                         equipoData.setMemberCount(memberCount);
-                        equipoData.setDescriptionPreview(generateDescriptionPreview(equipoData.getNombre(), memberCount));
                         break;
                     }
                 }
             }
             if (equipoData.getMemberCount() == null) {
                 equipoData.setMemberCount(0L);
-                equipoData.setDescriptionPreview(generateDescriptionPreview(equipoData.getNombre(), 0L));
             }
             return equipoData;
         }
     }
 
     @Transactional
-    public EquipoData crearEquipo(String nombre) {
+    public EquipoData crearEquipo(String nombre, String descripcion) {
         if (nombre == null || nombre.trim().isEmpty())
             throw new EquipoServiceException("El equipo no tiene nombre");
 
@@ -119,8 +104,10 @@ public class EquipoService {
         if (equipoBD.isPresent())
             throw new EquipoServiceException("El equipo " + nombre + " ya está registrado");
         else {
-            Equipo equipoNuevo = modelMapper.map(new Equipo(), Equipo.class);
-            equipoNuevo.setNombre(nombre);
+            Equipo equipoNuevo = new Equipo(nombre);
+            if (descripcion != null && !descripcion.trim().isEmpty()) {
+                equipoNuevo.setDescripcion(descripcion.trim());
+            }
             equipoNuevo = equipoRepository.save(equipoNuevo);
 
             return modelMapper.map(equipoNuevo, EquipoData.class);
@@ -172,14 +159,12 @@ public class EquipoService {
                 if (tmc != null && tmc.getTeamId() != null && tmc.getTeamId().equals(id)) {
                     Long memberCount = tmc.getMemberCount() == null ? 0L : tmc.getMemberCount();
                     equipoData.setMemberCount(memberCount);
-                    equipoData.setDescriptionPreview(generateDescriptionPreview(equipoData.getNombre(), memberCount));
                     break;
                 }
             }
         }
         if (equipoData.getMemberCount() == null) {
             equipoData.setMemberCount(0L);
-            equipoData.setDescriptionPreview(generateDescriptionPreview(equipoData.getNombre(), 0L));
         }
         return equipoData;
     }
@@ -206,11 +191,9 @@ public class EquipoService {
             }
         }
 
-        // set memberCount and descriptionPreview on DTOs (default to 0 if no entry)
+        // set memberCount on DTOs (default to 0 if no entry)
         for (EquipoData ed : equiposData) {
-            Long memberCount = countByTeam.getOrDefault(ed.getId(), 0L);
-            ed.setMemberCount(memberCount);
-            ed.setDescriptionPreview(generateDescriptionPreview(ed.getNombre(), memberCount));
+            ed.setMemberCount(countByTeam.getOrDefault(ed.getId(), 0L));
         }
 
         // ordenamos la lista por nombre del equipo
