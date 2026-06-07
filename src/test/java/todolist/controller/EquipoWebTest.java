@@ -263,7 +263,7 @@ public class EquipoWebTest {
         EquipoData nuevo = new EquipoData();
         nuevo.setId(5L);
         nuevo.setNombre("Infra");
-        when(equipoService.crearEquipo("Infra")).thenReturn(nuevo);
+        when(equipoService.crearEquipo("Infra", null)).thenReturn(nuevo);
 
         this.mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/equipos/nuevo")
                         .param("nombre", "Infra"))
@@ -418,7 +418,7 @@ public class EquipoWebTest {
     }
 
     @Test
-    public void descripcionEquipoMuestraDescriptionPreviewCuandoEstaDisponible() throws Exception {
+    public void descripcionEquipoMuestraDescripcionCuandoEstaDisponible() throws Exception {
         whenLoggedUserIsPresent();
 
         UsuarioData usuario = new UsuarioData();
@@ -430,7 +430,7 @@ public class EquipoWebTest {
         equipo.setId(1L);
         equipo.setNombre("Backend");
         equipo.setMemberCount(3L);
-        equipo.setDescriptionPreview("Backend - 3 members");
+        equipo.setDescripcion("Backend development team");
 
         when(equipoService.recuperarEquipo(1L)).thenReturn(equipo);
         when(equipoService.usuariosEquipo(1L)).thenReturn(Collections.emptyList());
@@ -438,12 +438,11 @@ public class EquipoWebTest {
 
         this.mockMvc.perform(get("/equipos/1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Backend - 3 members")))
-                .andExpect(content().string(containsString("<small>Backend - 3 members</small>")));
+                .andExpect(content().string(containsString("Backend development team")));
     }
 
     @Test
-    public void descripcionEquipoNoMuestraPreviewCuandoEsNula() throws Exception {
+    public void descripcionEquipoNoMuestraDescripcionCuandoEsNula() throws Exception {
         whenLoggedUserIsPresent();
 
         UsuarioData usuario = new UsuarioData();
@@ -455,7 +454,7 @@ public class EquipoWebTest {
         equipo.setId(1L);
         equipo.setNombre("Backend");
         equipo.setMemberCount(0L);
-        equipo.setDescriptionPreview(null);
+        equipo.setDescripcion(null);
 
         when(equipoService.recuperarEquipo(1L)).thenReturn(equipo);
         when(equipoService.usuariosEquipo(1L)).thenReturn(Collections.emptyList());
@@ -463,7 +462,7 @@ public class EquipoWebTest {
 
         this.mockMvc.perform(get("/equipos/1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(not(containsString("text-muted mb-2"))));
+                .andExpect(content().string(not(containsString("text-muted mb-3"))));
     }
 
     private void whenLoggedUserIsPresent() {
