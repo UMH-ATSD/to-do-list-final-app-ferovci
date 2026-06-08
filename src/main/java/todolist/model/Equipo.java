@@ -18,6 +18,7 @@ public class Equipo implements Serializable {
     private Long id;
     @NotNull
     private String nombre;
+    private String descripcion;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "equipo_usuario",
@@ -51,6 +52,14 @@ public class Equipo implements Serializable {
 
     public void setNombre(String titulo) {
         this.nombre = titulo;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 
     public Set<Usuario> getUsuarios() {

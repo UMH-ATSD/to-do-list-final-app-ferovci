@@ -24,7 +24,7 @@ public class EquipoServiceTest {
     @Test
     public void crearRecuperarEquipo() {
 
-        EquipoData equipo = equipoService.crearEquipo("Proyecto 1");
+        EquipoData equipo = equipoService.crearEquipo("Proyecto 1", null);
         assertThat(equipo.getId()).isNotNull();
 
         EquipoData equipoBd = equipoService.recuperarEquipo(equipo.getId());
@@ -34,7 +34,7 @@ public class EquipoServiceTest {
 
     @Test
     public void renombrarEquipo() {
-        EquipoData equipo = equipoService.crearEquipo("Proyecto 1");
+        EquipoData equipo = equipoService.crearEquipo("Proyecto 1", null);
 
         EquipoData equipoRenombrado = equipoService.renombrarEquipo(equipo.getId(), "Proyecto 2");
 
@@ -49,7 +49,7 @@ public class EquipoServiceTest {
         usuarioData.setEmail("user@umh");
         usuarioData.setPassword("1234");
         UsuarioData usuarioRegistrado = usuarioService.registrar(usuarioData);
-        EquipoData equipoCreado = equipoService.crearEquipo("Proyecto 1");
+        EquipoData equipoCreado = equipoService.crearEquipo("Proyecto 1", null);
         equipoService.añadirUsuarioAEquipo(equipoCreado.getId(), usuarioRegistrado.getId());
 
         equipoService.eliminarEquipo(equipoCreado.getId());
@@ -64,8 +64,8 @@ public class EquipoServiceTest {
     public void listadoEquiposOrdenAlfabetico() {
         // GIVEN
         // Dos equipos en la base de datos
-        equipoService.crearEquipo("Proyecto BBB");
-        equipoService.crearEquipo("Proyecto AAA");
+        equipoService.crearEquipo("Proyecto BBB", null);
+        equipoService.crearEquipo("Proyecto AAA", null);
 
         // WHEN
         // Recuperamos los equipos
@@ -86,7 +86,7 @@ public class EquipoServiceTest {
         usuario.setEmail("user@umh");
         usuario.setPassword("1234");
         usuario = usuarioService.registrar(usuario);
-        EquipoData equipo = equipoService.crearEquipo("Proyecto 1");
+        EquipoData equipo = equipoService.crearEquipo("Proyecto 1", null);
 
         // WHEN
         // Añadimos el usuario al equipo
@@ -107,8 +107,8 @@ public class EquipoServiceTest {
         usuario.setEmail("user@umh");
         usuario.setPassword("1234");
         usuario = usuarioService.registrar(usuario);
-        EquipoData equipo1 = equipoService.crearEquipo("Project 1");
-        EquipoData equipo2 = equipoService.crearEquipo("Project 2");
+        EquipoData equipo1 = equipoService.crearEquipo("Project 1", null);
+        EquipoData equipo2 = equipoService.crearEquipo("Project 2", null);
         equipoService.añadirUsuarioAEquipo(equipo1.getId(), usuario.getId());
         equipoService.añadirUsuarioAEquipo(equipo2.getId(), usuario.getId());
 
@@ -137,7 +137,7 @@ public class EquipoServiceTest {
 
         // Creamos un equipo pero no un usuario
         // y comprobamos que también se lanza una excepción
-        EquipoData equipo = equipoService.crearEquipo("Project 1");
+        EquipoData equipo = equipoService.crearEquipo("Project 1", null);
         assertThatThrownBy(() -> equipoService.añadirUsuarioAEquipo(equipo.getId(), 1L))
                 .isInstanceOf(EquipoServiceException.class);
     }
@@ -150,7 +150,7 @@ public class EquipoServiceTest {
         usuarioData.setEmail("user@umh");
         usuarioData.setPassword("1234");
         UsuarioData usuarioRegistrado = usuarioService.registrar(usuarioData);
-        EquipoData equipoCreado = equipoService.crearEquipo("Proyecto 1");
+        EquipoData equipoCreado = equipoService.crearEquipo("Proyecto 1", null);
 
         // WHEN
         // Añadimos el usuario al equipo
@@ -180,8 +180,8 @@ public class EquipoServiceTest {
         usuarioData.setEmail("user@umh");
         usuarioData.setPassword("1234");
         UsuarioData usuarioRegistrado = usuarioService.registrar(usuarioData);
-        EquipoData equipoCreado1 = equipoService.crearEquipo("Proyecto 1");
-        EquipoData equipoCreado2 = equipoService.crearEquipo("Proyecto 2");
+        EquipoData equipoCreado1 = equipoService.crearEquipo("Proyecto 1", null);
+        EquipoData equipoCreado2 = equipoService.crearEquipo("Proyecto 2", null);
 
         // WHEN
         // Añadimos el usuario a ambos equipos
@@ -224,7 +224,7 @@ public class EquipoServiceTest {
     public void quitarUsuarioDeEquipoExcepcionUsuarioNoExiste() {
         // GIVEN
         // Un equipo en la base de datos
-        EquipoData equipoCreado = equipoService.crearEquipo("Proyecto 1");
+        EquipoData equipoCreado = equipoService.crearEquipo("Proyecto 1", null);
 
         // THEN
         // Intentamos quitar un usuario que no existe del equipo
@@ -241,7 +241,7 @@ public class EquipoServiceTest {
         usuarioData.setEmail("user@umh");
         usuarioData.setPassword("1234");
         UsuarioData usuarioRegistrado = usuarioService.registrar(usuarioData);
-        EquipoData equipoCreado = equipoService.crearEquipo("Proyecto 1");
+        EquipoData equipoCreado = equipoService.crearEquipo("Proyecto 1", null);
 
         // THEN
         // Intentamos quitar el usuario del equipo cuando no pertenece
@@ -255,7 +255,7 @@ public class EquipoServiceTest {
         // THEN
         // Intentamos crear un equipo con nombre vacío
         String nombreVacio = "";
-        assertThatThrownBy(() -> equipoService.crearEquipo(nombreVacio))
+        assertThatThrownBy(() -> equipoService.crearEquipo(nombreVacio, null))
                 .isInstanceOf(EquipoServiceException.class)
                 .hasMessage("El equipo no tiene nombre");
     }
@@ -264,7 +264,7 @@ public class EquipoServiceTest {
     public void crearEquipoConNombreNull() {
         // THEN
         // Intentamos crear un equipo con nombre null
-        assertThatThrownBy(() -> equipoService.crearEquipo(null))
+        assertThatThrownBy(() -> equipoService.crearEquipo(null, null))
                 .isInstanceOf(EquipoServiceException.class)
                 .hasMessage("El equipo no tiene nombre");
     }
@@ -277,7 +277,7 @@ public class EquipoServiceTest {
         usuarioData.setEmail("user@umh");
         usuarioData.setPassword("1234");
         UsuarioData usuarioRegistrado = usuarioService.registrar(usuarioData);
-        EquipoData equipoCreado = equipoService.crearEquipo("Proyecto 1");
+        EquipoData equipoCreado = equipoService.crearEquipo("Proyecto 1", null);
         equipoService.añadirUsuarioAEquipo(equipoCreado.getId(), usuarioRegistrado.getId());
 
         // THEN
@@ -290,100 +290,65 @@ public class EquipoServiceTest {
     }
 
     @Test
-    public void descriptionPreviewGeneratedWithCorrectFormat() {
+    public void crearEquipoConDescripcion() {
         // GIVEN
-        // A team with members
-        UsuarioData usuario1 = new UsuarioData();
-        usuario1.setEmail("user1@umh");
-        usuario1.setPassword("1234");
-        usuario1 = usuarioService.registrar(usuario1);
-
-        EquipoData equipoCreado = equipoService.crearEquipo("Backend Team");
-        equipoService.añadirUsuarioAEquipo(equipoCreado.getId(), usuario1.getId());
+        // We want to create a team with description
+        String nombre = "Backend Team";
+        String descripcion = "Backend development team";
 
         // WHEN
-        // We retrieve the team
-        EquipoData equipoRetrieved = equipoService.recuperarEquipo(equipoCreado.getId());
+        // We create the team
+        EquipoData equipoCreado = equipoService.crearEquipo(nombre, descripcion);
 
         // THEN
-        // The preview should be generated with correct format
-        assertThat(equipoRetrieved.getDescriptionPreview()).isNotNull();
-        assertThat(equipoRetrieved.getDescriptionPreview()).contains("Backend Team");
-        assertThat(equipoRetrieved.getDescriptionPreview()).contains("1 member");
+        // The team should be created with description
+        assertThat(equipoCreado).isNotNull();
+        assertThat(equipoCreado.getNombre()).isEqualTo(nombre);
+        assertThat(equipoCreado.getDescripcion()).isEqualTo(descripcion);
     }
 
     @Test
-    public void descriptionPreviewShowsMultipleMembersCorrectly() {
+    public void crearEquipoSinDescripcion() {
         // GIVEN
-        // A team with multiple members
-        UsuarioData usuario1 = new UsuarioData();
-        usuario1.setEmail("user1@umh");
-        usuario1.setPassword("1234");
-        usuario1 = usuarioService.registrar(usuario1);
-
-        UsuarioData usuario2 = new UsuarioData();
-        usuario2.setEmail("user2@umh");
-        usuario2.setPassword("1234");
-        usuario2 = usuarioService.registrar(usuario2);
-
-        EquipoData equipoCreado = equipoService.crearEquipo("Frontend Team");
-        equipoService.añadirUsuarioAEquipo(equipoCreado.getId(), usuario1.getId());
-        equipoService.añadirUsuarioAEquipo(equipoCreado.getId(), usuario2.getId());
+        // We want to create a team without description
+        String nombre = "Frontend Team";
 
         // WHEN
-        // We retrieve the team
-        EquipoData equipoRetrieved = equipoService.recuperarEquipo(equipoCreado.getId());
+        // We create the team without description
+        EquipoData equipoCreado = equipoService.crearEquipo(nombre, null);
 
         // THEN
-        // The preview should show 2 members
-        assertThat(equipoRetrieved.getDescriptionPreview()).isNotNull();
-        assertThat(equipoRetrieved.getDescriptionPreview()).contains("Frontend Team");
-        assertThat(equipoRetrieved.getDescriptionPreview()).contains("2 members");
+        // The team should be created without description
+        assertThat(equipoCreado).isNotNull();
+        assertThat(equipoCreado.getNombre()).isEqualTo(nombre);
+        assertThat(equipoCreado.getDescripcion()).isNull();
     }
 
     @Test
-    public void descriptionPreviewShowsZeroMembersWhenNoMembers() {
-        // GIVEN
-        // A team without members
-        EquipoData equipoCreado = equipoService.crearEquipo("Empty Team");
+    public void crearEquipoConDescripcionVacia() {
+        // create a team with empty description
+        String nombre = "Empty Desc Team";
+        String descripcionVacia = "   ";
 
-        // WHEN
-        // We retrieve the team
-        EquipoData equipoRetrieved = equipoService.recuperarEquipo(equipoCreado.getId());
+        // create the team with empty description
+        EquipoData equipoCreado = equipoService.crearEquipo(nombre, descripcionVacia);
 
-        // THEN
-        // The preview should show 0 members
-        assertThat(equipoRetrieved.getDescriptionPreview()).isNotNull();
-        assertThat(equipoRetrieved.getDescriptionPreview()).contains("Empty Team");
-        assertThat(equipoRetrieved.getDescriptionPreview()).contains("0 members");
+        // The team should be created without description 
+        assertThat(equipoCreado).isNotNull();
+        assertThat(equipoCreado.getNombre()).isEqualTo(nombre);
+        assertThat(equipoCreado.getDescripcion()).isNull();
     }
 
     @Test
-    public void descriptionPreviewIncludedInFindAllOrdenadoPorNombre() {
-        // GIVEN
-        // Multiple teams with different member counts
-        UsuarioData usuario = new UsuarioData();
-        usuario.setEmail("user@umh");
-        usuario.setPassword("1234");
-        usuario = usuarioService.registrar(usuario);
+    public void recuperarEquipoConDescripcion() {
+        
+        EquipoData equipoCreado = equipoService.crearEquipo("Dev Team", "Development team for backend");
 
-        EquipoData equipo1 = equipoService.crearEquipo("Project A");
-        EquipoData equipo2 = equipoService.crearEquipo("Project B");
-        equipoService.añadirUsuarioAEquipo(equipo1.getId(), usuario.getId());
+        EquipoData equipoRetrieved = equipoService.recuperarEquipo(equipoCreado.getId());
 
-        // WHEN
-        // We retrieve all teams
-        List<EquipoData> equipos = equipoService.findAllOrdenadoPorNombre();
+        assertThat(equipoRetrieved).isNotNull();
+        assertThat(equipoRetrieved.getDescripcion()).isEqualTo("Development team for backend");
 
-        // THEN
-        // All teams should have preview populated
-        assertThat(equipos).hasSize(2);
-        assertThat(equipos.stream().filter(e -> e.getId().equals(equipo1.getId())).findFirst().get().getDescriptionPreview())
-                .contains("Project A")
-                .contains("1 member");
-        assertThat(equipos.stream().filter(e -> e.getId().equals(equipo2.getId())).findFirst().get().getDescriptionPreview())
-                .contains("Project B")
-                .contains("0 members");
     }
 
 }

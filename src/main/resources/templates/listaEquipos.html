@@ -21,19 +21,21 @@
       <table class="table table-striped">
         <thead>
         <tr>
-          <th>Id</th>
           <th>Name</th>
           <th>Members</th>
+          <th>Description</th>
           <th>Action</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="equipo : ${equipos}">
-          <td th:text="${equipo.id}"></td>
           <td>
             <a th:href="@{/equipos/{id}(id=${equipo.id})}" th:text="${equipo.nombre}"></a>
           </td>
           <td th:text="${equipo.memberCount != null ? equipo.memberCount : 0}"></td>
+          <td>
+            <small th:if="${equipo.descripcion != null && equipo.descripcion != ''}" th:text="${#strings.length(equipo.descripcion) > 50 ? #strings.substring(equipo.descripcion, 0, 50) + '...' : equipo.descripcion}"></small>
+          </td>
           <td>
             <form method="post"
                   th:if="${!usuarioPerteneceAlEquipoIds.contains(equipo.id)}"

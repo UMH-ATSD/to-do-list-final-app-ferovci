@@ -8,7 +8,7 @@ public class EquipoData {
     private Long id;
     private String nombre;
     private Long memberCount;
-    private String descriptionPreview;
+    private String descripcion;
 
     // Getters y setters
 
@@ -36,12 +36,12 @@ public class EquipoData {
         this.memberCount = memberCount;
     }
 
-    public String getDescriptionPreview() {
-        return descriptionPreview;
+    public String getDescripcion() {
+        return descripcion;
     }
 
-    public void setDescriptionPreview(String descriptionPreview) {
-        this.descriptionPreview = descriptionPreview;
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 
     // Sobreescribimos equals y hashCode para que dos usuarios sean iguales

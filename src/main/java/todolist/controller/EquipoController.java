@@ -111,10 +111,10 @@ public class EquipoController {
     }
 
     @PostMapping("/equipos/nuevo")
-    public String crearEquipo(String nombre, RedirectAttributes flash) {
+    public String crearEquipo(String nombre, String descripcion, RedirectAttributes flash) {
         comprobarUsuarioLogeado();
         try {
-            equipoService.crearEquipo(nombre);
+            equipoService.crearEquipo(nombre, descripcion);
             flash.addFlashAttribute("mensaje", "Equipo creado correctamente");
         } catch (Exception e) {
             flash.addFlashAttribute("error", e.getMessage());
